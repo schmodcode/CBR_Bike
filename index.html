@@ -20,20 +20,43 @@
     <script>
         mapboxgl.accessToken = 'pk.eyJ1Ijoic2NobWlkc3RhIiwiYSI6ImNscG02OWFvdTA1aTUya3FuZ2tzbnB6ejAifQ.bxFVJbOBulC_Y9YskaKxjg';
 
+        var map;
+        var locationMarker;
+
         // Function to initialize the map
         function initializeMap(longitude, latitude) {
-            var map = new mapboxgl.Map({
+            map = new mapboxgl.Map({
                 container: 'map', // container ID
                 style: 'mapbox://styles/schmidsta/cl8zj69gv000014piwjpgxkcv', // style URL
                 center: [longitude, latitude], // starting position [lng, lat]
                 zoom: 14 // starting zoom
             });
+
+            // Create a new marker for the user's location
+            locationMarker = new mapboxgl.Marker()
+                .setLngLat([longitude, latitude])
+                .addTo(map);
         }
 
-        // Get user's location
+        // Function to update the marker's position
+        function updateMarkerPosition(longitude, latitude) {
+            locationMarker.setLngLat([longitude, latitude]);
+        }
+
+        // Get and watch user's location
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
                 initializeMap(position.coords.longitude, position.coords.latitude);
+                
+                // Watch the position and update marker accordingly
+                navigator.geolocation.watchPosition(function(position) {
+                    updateMarkerPosition(position.coords.longitude, position.coords.latitude);
+                }, function(error) {
+                    console.log("Error: " + error.message);
+                }, {
+                    enableHighAccuracy: true
+                });
+
             }, function() {
                 initializeMap(149.131, -35.270); // Default location
             });
