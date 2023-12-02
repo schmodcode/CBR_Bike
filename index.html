@@ -15,6 +15,22 @@
             height: 100vh;
             max-width: 100%;
         }
+        .user-location-marker {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: blue;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            border: 2px solid white;
+        }
+        .user-location-marker::after {
+            content: '▲';
+            transform: rotate(0deg); /* Adjust rotation as needed */
+        }
     </style>
 </head>
 <body>
@@ -26,7 +42,8 @@
         mapboxgl.accessToken = 'pk.eyJ1Ijoic2NobWlkc3RhIiwiYSI6ImNscG02OWFvdTA1aTUya3FuZ2tzbnB6ejAifQ.bxFVJbOBulC_Y9YskaKxjg';
 
         var map;
-        var locationMarker;
+        var locationMarkerElement = document.createElement('div');
+        locationMarkerElement.className = 'user-location-marker';
 
         // Function to initialize the map
         function initializeMap(longitude, latitude) {
@@ -38,14 +55,24 @@
             });
 
             // Create a new marker for the user's location
-            locationMarker = new mapboxgl.Marker()
+            new mapboxgl.Marker(locationMarkerElement)
                 .setLngLat([longitude, latitude])
                 .addTo(map);
         }
 
         // Function to update the marker's position
         function updateMarkerPosition(longitude, latitude) {
-            locationMarker.setLngLat([longitude, latitude]);
+            locationMarkerElement.style.transform = `translate(-50%, -50%) rotate(${calculateBearing(longitude, latitude)}deg)`;
+            new mapboxgl.Marker(locationMarkerElement)
+                .setLngLat([longitude, latitude])
+                .addTo(map);
+        }
+
+        // Calculate the bearing of the marker
+        function calculateBearing(longitude, latitude) {
+            // This is a placeholder function. Replace with actual logic to calculate bearing.
+            // For example, you could calculate the bearing based on the user's movement direction.
+            return 0; // Replace with actual bearing calculation
         }
 
         // Get and watch user's location
