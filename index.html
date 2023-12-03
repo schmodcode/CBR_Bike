@@ -28,35 +28,42 @@
         var map;
         var locationMarker;
 
-        // Function to initialize the map
         function initializeMap(longitude, latitude) {
             map = new mapboxgl.Map({
-                container: 'map', // container ID
-                style: 'mapbox://styles/schmidsta/cl8zj69gv000014piwjpgxkcv', // style URL
-                center: [longitude, latitude], // starting position [lng, lat]
-                zoom: 17 // starting zoom
+                container: 'map',
+                style: 'mapbox://styles/schmidsta/cl8zj69gv000014piwjpgxkcv',
+                center: [longitude, latitude],
+                zoom: 17
             });
 
-            // Add navigation control (includes the compass)
             map.addControl(new mapboxgl.NavigationControl());
 
-            // Create a new marker for the user's location
             locationMarker = new mapboxgl.Marker()
                 .setLngLat([longitude, latitude])
                 .addTo(map);
         }
 
-        // Function to update the marker's position
         function updateMarkerPosition(longitude, latitude) {
             locationMarker.setLngLat([longitude, latitude]);
         }
 
-        // Get and watch user's location
+        // Function to rotate the map based on device orientation
+        function rotateMapTo(bearing) {
+            if (map) {
+                map.rotateTo(bearing, { duration: 0 });
+            }
+        }
+
+        // Device orientation event listener
+        window.addEventListener('deviceorientation', function(event) {
+            if (event.alpha !== null) {
+                rotateMapTo(event.alpha);
+            }
+        });
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
                 initializeMap(position.coords.longitude, position.coords.latitude);
-                
-                // Watch the position and update marker accordingly
                 navigator.geolocation.watchPosition(function(position) {
                     updateMarkerPosition(position.coords.longitude, position.coords.latitude);
                 }, function(error) {
@@ -64,7 +71,6 @@
                 }, {
                     enableHighAccuracy: true
                 });
-
             }, function() {
                 initializeMap(149.131, -35.270); // Default location
             });
